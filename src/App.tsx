@@ -14,7 +14,8 @@ import Messages from "./pages/Messages";
 import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import Explore from "./pages/Explore";
-import NotFound from "./pages/NotFound";
+
+import Chat from "./pages/Chat";
 
 const queryClient = new QueryClient();
 
@@ -36,8 +37,10 @@ const App = () => (
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/explore" element={<Explore />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/chat/:id" element={<Chat />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
+          
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
