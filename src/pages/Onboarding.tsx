@@ -34,28 +34,28 @@ const Onboarding = () => {
     if (currentStep < onboardingData.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      navigate("/auth");
+      navigate("/role-selection");
     }
   };
 
   const handleSkip = () => {
-    navigate("/auth");
+    navigate("/role-selection");
   };
 
   const current = onboardingData[currentStep];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex flex-col">
       <div className="flex-1 flex flex-col items-center justify-center p-8 max-w-md mx-auto w-full">
         <button
           onClick={handleSkip}
-          className="self-end text-sm text-muted-foreground mb-8"
+          className="self-end text-sm text-primary font-medium mb-8 hover:underline"
         >
           Passer
         </button>
 
-        <div className="relative w-full aspect-[4/3] mb-12 overflow-hidden rounded-[3rem]">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary-light/20 rounded-[3rem]" />
+        <div className="relative w-full aspect-[4/3] mb-12 overflow-hidden rounded-[3rem] shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-[3rem]" />
           <img
             src={current.image}
             alt={current.title}
@@ -93,7 +93,7 @@ const Onboarding = () => {
 
         <Button
           onClick={handleNext}
-          className="w-full max-w-sm h-12 rounded-xl text-base"
+          className="w-full max-w-sm h-14 rounded-2xl text-base font-semibold bg-gradient-primary hover:opacity-90 transition-opacity shadow-lg"
           size="lg"
         >
           {currentStep < onboardingData.length - 1 ? "Suivant" : "Commencer"}

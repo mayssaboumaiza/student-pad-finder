@@ -84,11 +84,19 @@ const Home = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            <button className="p-2 hover:bg-secondary rounded-full transition-colors">
+            <button
+              onClick={() => navigate("/notifications")}
+              className="p-2 hover:bg-secondary rounded-full transition-colors relative"
+            >
               <Bell className="w-5 h-5" />
+              <div className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
             </button>
-            <button className="p-2 hover:bg-secondary rounded-full transition-colors">
+            <button
+              onClick={() => navigate("/messages")}
+              className="p-2 hover:bg-secondary rounded-full transition-colors relative"
+            >
               <MessageCircle className="w-5 h-5" />
+              <div className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
             </button>
           </div>
         </div>
@@ -202,20 +210,23 @@ const Home = () => {
       <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border">
         <div className="flex items-center justify-around p-4 max-w-md mx-auto">
           {[
-            { icon: HomeIcon, label: "Accueil", value: "home" },
-            { icon: Compass, label: "Explorer", value: "explore" },
-            { icon: Heart, label: "Favoris", value: "favorites" },
-            { icon: User, label: "Profil", value: "profile" },
+            { icon: HomeIcon, label: "Accueil", value: "home", route: "/home" },
+            { icon: Compass, label: "Explorer", value: "explore", route: "/explore" },
+            { icon: Heart, label: "Favoris", value: "favorites", route: "/favorites" },
+            { icon: User, label: "Profil", value: "profile", route: "/profile" },
           ].map((item) => (
             <button
               key={item.value}
-              onClick={() => setActiveTab(item.value)}
+              onClick={() => {
+                setActiveTab(item.value);
+                navigate(item.route);
+              }}
               className="flex flex-col items-center gap-1 min-w-[60px]"
             >
               <item.icon
-                className={`w-6 h-6 ${
+                className={`w-6 h-6 transition-all ${
                   activeTab === item.value
-                    ? "text-primary"
+                    ? "text-primary scale-110"
                     : "text-muted-foreground"
                 }`}
               />
