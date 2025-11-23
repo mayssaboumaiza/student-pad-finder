@@ -62,6 +62,10 @@ const Home = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("home");
   const [favorites, setFavorites] = useState<number[]>([]);
+  const [location, setLocation] = useState("Tunis");
+  const locations = [
+    "Tunis", "Ariana", "Ben Arous", "Manouba", "Nabeul", "Zaghouan", "Bizerte", "Béja", "Jendouba", "Le Kef", "Siliana", "Sousse", "Monastir", "Mahdia", "Sfax", "Kairouan", "Kasserine", "Sidi Bouzid", "Gabès", "Medenine", "Tataouine", "Tozeur", "Kebili", "Gafsa"
+  ];
 
   const toggleFavorite = (id: number) => {
     setFavorites((prev) =>
@@ -79,7 +83,16 @@ const Home = () => {
             <div>
               <div className="text-sm text-muted-foreground">Localisation</div>
               <div className="font-semibold flex items-center gap-1">
-                Sokra, Ariana <ChevronDown className="w-4 h-4" />
+                <select
+                  value={location}
+                  onChange={e => setLocation(e.target.value)}
+                  className="bg-transparent outline-none font-semibold"
+                >
+                  {locations.map(loc => (
+                    <option key={loc} value={loc}>{loc}</option>
+                  ))}
+                </select>
+                <ChevronDown className="w-4 h-4" />
               </div>
             </div>
           </div>

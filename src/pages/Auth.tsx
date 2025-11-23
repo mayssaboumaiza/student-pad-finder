@@ -27,6 +27,16 @@ const Auth = () => {
       return;
     }
 
+      // 👉 Construire l'objet user
+    const userData = {
+    name: formData.username || "Utilisateur",
+    email: formData.email,
+    phone: formData.phone || null,
+    };
+
+    // 👉 Sauvegarde dans localStorage
+      localStorage.setItem("user", JSON.stringify(userData));
+
     toast.success(isLogin ? "Connexion réussie!" : "Compte créé avec succès!");
     navigate("/home");
   };

@@ -93,31 +93,32 @@ const Explore = () => {
     return matchesCategory && matchesSearch;
   });
 
+  // Vérifie si le quiz est terminé via l'URL
+  const quizDone = window.location.search.includes('quiz=done');
+
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* Header */}
+      {/* Bloc quiz en haut, remplace la recherche */}
       <div className="bg-gradient-primary text-white p-6 rounded-b-3xl">
-        <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <h1 className="font-bold text-lg">Explorer</h1>
-          <button className="p-2 hover:bg-white/20 rounded-lg transition-colors">
-            <SlidersHorizontal className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60" />
-          <Input
-            placeholder="Chercher un logement..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-12 h-12 rounded-xl bg-white/10 border-white/20 text-white placeholder:text-white/60"
-          />
+          <div className="flex items-center justify-between mb-6">
+            <button
+              className="p-2 rounded-full hover:bg-muted"
+              aria-label="Retour"
+              onClick={() => navigate(-1)}
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </button>
+            <h1 className="font-bold text-xl">Explorer</h1>
+            <SlidersHorizontal className="w-6 h-6 text-muted-foreground" />
+          </div>
+        <div className="px-2 pt-2">
+          <div className="bg-gradient-to-r from-pink-400 to-purple-400 rounded-xl p-4 flex items-center justify-between cursor-pointer mb-4" onClick={() => navigate('/quiz')}>
+            <div>
+              <div className="font-bold text-white text-lg mb-1">Vous cherchez un colocataire ?</div>
+              <div className="text-white text-sm">Faites le quiz pour trouver votre colocataire idéal</div>
+            </div>
+            <Button className="bg-white text-primary font-semibold">Commencer le quiz</Button>
+          </div>
         </div>
       </div>
 
@@ -200,6 +201,32 @@ const Explore = () => {
           ))}
         </div>
       </div>
+      {/* Section colocataires compatibles après quiz */}
+      {quizDone && (
+        <div className="px-4 pb-8">
+          <h2 className="font-bold text-lg mb-4">Colocataires compatibles</h2>
+          <div className="space-y-3">
+            <Card className="flex items-center gap-3 p-4">
+              <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Foulen El Fouléni" className="w-12 h-12 rounded-full object-cover" />
+              <div className="flex-1">
+                <div className="font-semibold">Foulen El Fouléni</div>
+                <div className="text-xs text-muted-foreground">Étudiante en droit, aime les soirées calmes et la cuisine maison. Non fumeuse, sociable et organisée.</div>
+              </div>
+              <div className="text-primary font-bold">80%</div>
+              <Button variant="outline" size="sm" onClick={() => navigate('/chat/1')}>Message</Button>
+            </Card>
+            <Card className="flex items-center gap-3 p-4">
+              <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Foulen El Fouléni" className="w-12 h-12 rounded-full object-cover" />
+              <div className="flex-1">
+                <div className="font-semibold">Foulen El Fouléni</div>
+                <div className="text-xs text-muted-foreground">Étudiant en informatique, passionné de jeux vidéo, aime les discussions et les sorties. Fumeur occasionnel, flexible et ouvert à la colocation mixte.</div>
+              </div>
+              <div className="text-primary font-bold">73%</div>
+              <Button variant="outline" size="sm" onClick={() => navigate('/chat/2')}>Message</Button>
+            </Card>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
