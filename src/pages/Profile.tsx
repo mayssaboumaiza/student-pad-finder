@@ -26,8 +26,8 @@ import { toast } from "sonner";
 type PaymentEntry = { date: string; amount: string; status: string };
 type PreferencesState = {
   budget?: string;
-  types?: string[]; // ex: ['Studio', 'S+1']
-  cities?: string[]; // favorites
+  types?: string[]; 
+  cities?: string[];
   darkMode?: boolean;
   viewMode?: "list" | "map";
 };
@@ -105,7 +105,6 @@ const Profile: React.FC = () => {
         const parsed = JSON.parse(raw) as Partial<UserState>;
         setUser((prev) => ({ ...prev, ...parsed }));
       } else {
-        // If no stored user, also try legacy 'user' key used by your auth (optional)
         const legacy = localStorage.getItem("user");
         if (legacy) {
           const parsedLegacy = JSON.parse(legacy);
@@ -122,7 +121,7 @@ const Profile: React.FC = () => {
     }
   }, []);
 
-  // Sync saved user into edit fields when user changes (open settings/about)
+  // Sync saved user into edit fields
   useEffect(() => {
     setEditName(user.name);
     setEditEmail(user.email);
@@ -130,7 +129,7 @@ const Profile: React.FC = () => {
     setEditAbout(user.about || "");
   }, [user]);
 
-  // Helper to persist user to localStorage
+  // Persist user to localStorage
   const persist = (nextUser: UserState) => {
     setUser(nextUser);
     try {
@@ -154,23 +153,17 @@ const Profile: React.FC = () => {
   };
 
   // Preferences handlers
-  const togglePrefDark = (v: boolean) => {
-    const next = { ...user, preferences: { ...user.preferences, darkMode: v } };
-    persist(next);
-  };
-
   const setBudget = (b: string) => {
     const next = { ...user, preferences: { ...user.preferences, budget: b } };
     persist(next);
   };
 
-  // Notification toggles
   const toggleNotification = (key: keyof NotificationSettings, value: boolean) => {
     const next = { ...user, notifications: { ...user.notifications, [key]: value } };
     persist(next);
   };
 
-  // Payment: fake add card (just creates a fake payment entry)
+  // Payment
   const addFakePayment = () => {
     if (!addingCardName || !addingCardNumber) {
       toast.error("Remplis le nom et le numéro de la carte (factice)");
@@ -188,7 +181,6 @@ const Profile: React.FC = () => {
     toast.success("Moyen de paiement ajouté (factice)");
   };
 
-  // Remove payment history entry
   const removePaymentEntry = (idx: number) => {
     const next = { ...user, paymentHistory: user.paymentHistory.filter((_, i) => i !== idx) };
     persist(next);
@@ -198,30 +190,37 @@ const Profile: React.FC = () => {
   // Logout
   const logout = () => {
     localStorage.removeItem(storageKey);
-    // Optionally keep legacy 'user' if you want to simulate persistent login; here we clear it:
     localStorage.removeItem("user");
     toast.success("Déconnecté");
     navigate("/auth");
   };
 
-  // Compute initials
-  const initials = (name: string) =>
-    name
-      .split(" ")
-      .map((n) => n[0])
-      .filter(Boolean)
-      .slice(0, 2)
-      .join("")
-      .toUpperCase();
+  // Return button for internal sections
+  const BackButton = ({ onClick }: { onClick: () => void }) => (
+    <button
+      onClick={onClick}
+      className="p-2 hover:bg-secondary/20 rounded-lg transition-colors flex items-center mb-4"
+    >
+      <ArrowLeft className="w-5 h-5" />
+      <span className="ml-2">Retour</span>
+    </button>
+  );
 
   return (
     <div className="min-h-screen bg-background pb-20">
+      {/* Bouton global retour vers Home */}
+      <Card 
+        className="flex items-center gap-3 p-4 cursor-pointer mb-4"
+        onClick={() => navigate("/home")}
+      >
+      <ArrowLeft className="w-6 h-6 text-primary" />
+      <span className="flex-1">Retour à l'accueil</span>
+      </Card>
+
       {/* Header */}
       <div className="bg-gradient-primary text-white p-6 rounded-b-3xl flex flex-col items-center">
         <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center text-3xl font-bold mb-2 overflow-hidden">
-          {/* If Avatar component supports src */}
           <Avatar>
-            {/* If Avatar doesn't use children, replace by an <img> with src */}
             <img src={user.avatarUrl || AVATAR_PLACEHOLDER} alt="avatar" className="w-full h-full object-cover" />
           </Avatar>
         </div>
@@ -238,25 +237,21 @@ const Profile: React.FC = () => {
               <span className="flex-1">Paramètres</span>
               <ArrowRight className="w-5 h-5 text-muted-foreground" />
             </Card>
-
             <Card className="flex items-center gap-3 p-4 cursor-pointer" onClick={() => setSection("preferences")}>
               <Heart className="w-6 h-6 text-primary" />
               <span className="flex-1">Préférences</span>
               <ArrowRight className="w-5 h-5 text-muted-foreground" />
             </Card>
-
             <Card className="flex items-center gap-3 p-4 cursor-pointer" onClick={() => setSection("payment")}>
               <CreditCard className="w-6 h-6 text-primary" />
               <span className="flex-1">Paiement</span>
               <ArrowRight className="w-5 h-5 text-muted-foreground" />
             </Card>
-
             <Card className="flex items-center gap-3 p-4 cursor-pointer" onClick={() => setSection("notification")}>
               <Info className="w-6 h-6 text-primary" />
               <span className="flex-1">Notification</span>
               <ArrowRight className="w-5 h-5 text-muted-foreground" />
             </Card>
-
             <Card className="flex items-center gap-3 p-4 cursor-pointer" onClick={() => setSection("about")}>
               <Info className="w-6 h-6 text-primary" />
               <span className="flex-1">À propos</span>
@@ -268,37 +263,36 @@ const Profile: React.FC = () => {
         {/* SETTINGS */}
         {section === "settings" && (
           <div className="space-y-4">
-            <button className="mb-4" onClick={() => setSection("main")}>
-              <ArrowLeft className="inline w-4 h-4 mr-1" /> Retour
-            </button>
+            <BackButton onClick={() => setSection("main")} />
 
             <h3 className="font-bold text-lg mb-2">Paramètres</h3>
-
             <div className="bg-card rounded-lg p-4 space-y-4">
               <div>
                 <Label>Nom complet</Label>
                 <Input value={editName} onChange={(e) => setEditName(e.target.value)} className="mt-1" />
               </div>
-
               <div>
                 <Label>Email</Label>
                 <Input value={editEmail} onChange={(e) => setEditEmail(e.target.value)} className="mt-1" type="email" />
               </div>
-
               <div>
                 <Label>Téléphone</Label>
                 <Input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} className="mt-1" />
               </div>
-
               <div className="flex gap-2">
                 <Button onClick={saveSettings}>Enregistrer</Button>
-                <Button variant="outline" onClick={() => { setEditName(user.name); setEditEmail(user.email); setEditPhone(user.phone || ""); }}>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setEditName(user.name);
+                    setEditEmail(user.email);
+                    setEditPhone(user.phone || "");
+                  }}
+                >
                   Annuler
                 </Button>
               </div>
-
               <hr />
-
               <div>
                 <h4 className="font-semibold mb-2">Sécurité</h4>
                 <p className="text-sm text-muted-foreground mb-2">Changer mot de passe</p>
@@ -309,14 +303,17 @@ const Profile: React.FC = () => {
                 </div>
               </div>
               <div>
-                <Button variant="destructive" onClick={() => {
-                  if (confirm("Supprimer ton compte et toutes les données locales ? (irréversible pour cette demo)")) {
-                    localStorage.removeItem(storageKey);
-                    localStorage.removeItem("user");
-                    toast.success("Compte supprimé (local)");
-                    navigate("/auth");
-                  }
-                }}>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    if (confirm("Supprimer ton compte et toutes les données locales ? (irréversible pour cette demo)")) {
+                      localStorage.removeItem(storageKey);
+                      localStorage.removeItem("user");
+                      toast.success("Compte supprimé (local)");
+                      navigate("/auth");
+                    }
+                  }}
+                >
                   Supprimer le compte
                 </Button>
               </div>
@@ -327,13 +324,10 @@ const Profile: React.FC = () => {
         {/* PREFERENCES */}
         {section === "preferences" && (
           <div className="space-y-4">
-            <button className="mb-4" onClick={() => setSection("main")}>
-              <ArrowLeft className="inline w-4 h-4 mr-1" /> Retour
-            </button>
-
+            <BackButton onClick={() => setSection("main")} />
             <h3 className="font-bold text-lg mb-2">Préférences</h3>
-
             <div className="bg-card rounded-lg p-4 space-y-4">
+              {/* budget, types, cities, viewMode */}
               <div>
                 <Label>Budget</Label>
                 <div className="flex gap-2 mt-2">
@@ -348,7 +342,6 @@ const Profile: React.FC = () => {
                   ))}
                 </div>
               </div>
-
               <div>
                 <Label>Types de logement préférés</Label>
                 <div className="flex gap-2 mt-2">
@@ -359,7 +352,8 @@ const Profile: React.FC = () => {
                         key={t}
                         onClick={() => {
                           const set = new Set(user.preferences.types || []);
-                          if (set.has(t)) set.delete(t); else set.add(t);
+                          if (set.has(t)) set.delete(t);
+                          else set.add(t);
                           persist({ ...user, preferences: { ...user.preferences, types: Array.from(set) } });
                         }}
                         className={`px-3 py-1 rounded ${active ? "bg-primary text-white" : "bg-gray-100"}`}
@@ -370,7 +364,6 @@ const Profile: React.FC = () => {
                   })}
                 </div>
               </div>
-
               <div>
                 <Label>Villes favorites</Label>
                 <div className="flex gap-2 mt-2">
@@ -381,7 +374,8 @@ const Profile: React.FC = () => {
                         key={c}
                         onClick={() => {
                           const set = new Set(user.preferences.cities || []);
-                          if (set.has(c)) set.delete(c); else set.add(c);
+                          if (set.has(c)) set.delete(c);
+                          else set.add(c);
                           persist({ ...user, preferences: { ...user.preferences, cities: Array.from(set) } });
                         }}
                         className={`px-3 py-1 rounded ${active ? "bg-primary text-white" : "bg-gray-100"}`}
@@ -392,7 +386,6 @@ const Profile: React.FC = () => {
                   })}
                 </div>
               </div>
-
               <div>
                 <Label>Affichage</Label>
                 <div className="flex items-center gap-4 mt-2">
@@ -417,12 +410,8 @@ const Profile: React.FC = () => {
         {/* PAYMENT */}
         {section === "payment" && (
           <div className="space-y-4">
-            <button className="mb-4" onClick={() => setSection("main")}>
-              <ArrowLeft className="inline w-4 h-4 mr-1" /> Retour
-            </button>
-
+            <BackButton onClick={() => setSection("main")} />
             <h3 className="font-bold text-lg mb-2">Paiement</h3>
-
             <div className="bg-card rounded-lg p-4 space-y-4">
               <div>
                 <h4 className="font-semibold mb-2">Ajouter une méthode de paiement</h4>
@@ -432,7 +421,6 @@ const Profile: React.FC = () => {
                   <Button onClick={addFakePayment}>Ajouter</Button>
                 </div>
               </div>
-
               <div>
                 <h4 className="font-semibold mb-2">Historique de paiement</h4>
                 <div className="space-y-2">
@@ -458,44 +446,32 @@ const Profile: React.FC = () => {
         {/* NOTIFICATION */}
         {section === "notification" && (
           <div className="space-y-4">
-            <button className="mb-4" onClick={() => setSection("main")}>
-              <ArrowLeft className="inline w-4 h-4 mr-1" /> Retour
-            </button>
-
+            <BackButton onClick={() => setSection("main")} />
             <h3 className="font-bold text-lg mb-2">Notifications</h3>
-
             <div className="bg-card rounded-lg p-4 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-medium">Notifications push</div>
-                  <div className="text-sm text-muted-foreground">Recevoir des alertes sur l'app</div>
-                </div>
-                <Switch checked={user.notifications.push} onCheckedChange={(v) => toggleNotification("push", !!v)} />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-medium">Notifications par email</div>
-                  <div className="text-sm text-muted-foreground">Recevoir des emails</div>
-                </div>
-                <Switch checked={user.notifications.email} onCheckedChange={(v) => toggleNotification("email", !!v)} />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-medium">Nouveaux messages</div>
-                  <div className="text-sm text-muted-foreground">Alertes quand tu reçois un message</div>
-                </div>
-                <Switch checked={user.notifications.messages} onCheckedChange={(v) => toggleNotification("messages", !!v)} />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-medium">Promotions & Offres</div>
-                  <div className="text-sm text-muted-foreground">Recevoir des promotions</div>
-                </div>
-                <Switch checked={user.notifications.offers} onCheckedChange={(v) => toggleNotification("offers", !!v)} />
-              </div>
+              {(["push", "email", "messages", "offers"] as const).map((key) => {
+                const label = {
+                  push: "Notifications push",
+                  email: "Notifications par email",
+                  messages: "Nouveaux messages",
+                  offers: "Promotions & Offres",
+                }[key];
+                const desc = {
+                  push: "Recevoir des alertes sur l'app",
+                  email: "Recevoir des emails",
+                  messages: "Alertes quand tu reçois un message",
+                  offers: "Recevoir des promotions",
+                }[key];
+                return (
+                  <div key={key} className="flex items-center justify-between">
+                    <div>
+                      <div className="font-medium">{label}</div>
+                      <div className="text-sm text-muted-foreground">{desc}</div>
+                    </div>
+                    <Switch checked={user.notifications[key]} onCheckedChange={(v) => toggleNotification(key, !!v)} />
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -503,12 +479,8 @@ const Profile: React.FC = () => {
         {/* ABOUT */}
         {section === "about" && (
           <div className="space-y-4">
-            <button className="mb-4" onClick={() => setSection("main")}>
-              <ArrowLeft className="inline w-4 h-4 mr-1" /> Retour
-            </button>
-
+            <BackButton onClick={() => setSection("main")} />
             <h3 className="font-bold text-lg mb-2">À propos</h3>
-
             <div className="bg-card rounded-lg p-4 space-y-4">
               <div>
                 <Label>À propos de toi</Label>

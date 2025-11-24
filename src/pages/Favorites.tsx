@@ -44,6 +44,7 @@ const Favorites = () => {
             onClick={() => navigate(-1)}
             className="p-2 hover:bg-secondary/20 rounded-lg transition-colors"
           >
+            
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="font-bold text-lg">Favoris</h1>

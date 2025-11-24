@@ -15,7 +15,7 @@ import Messages from "./pages/Messages";
 import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import Explore from "./pages/Explore";
-
+import List from "./pages/List"
 import Chat from "./pages/Chat";
 import Booking from "./pages/Booking";
 import Payment from "./pages/Payment";
@@ -34,7 +34,7 @@ const App = () => (
           <Route path="/role-selection" element={<RoleSelection />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/home" element={<Home />} />
-        // ...existing code...
+          <Route path="/list" element={<List />} />
           <Route path="/property/:id" element={<PropertyDetail />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/messages" element={<Messages />} />
