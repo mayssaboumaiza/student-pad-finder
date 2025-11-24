@@ -1,16 +1,20 @@
-import { useState } from "react";
+// src/pages/Auth.tsx
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, User, Home } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth, UserRole } from "@/pages/AuthContext";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<UserRole>('student');
   const [formData, setFormData] = useState({
     email: "",
     phone: "",
@@ -19,7 +23,18 @@ const Auth = () => {
     acceptTerms: false,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Récupérer le rôle sélectionné depuis localStorage au chargement
+  useEffect(() => {
+    const savedRole = localStorage.getItem('selectedRole') as UserRole;
+    if (savedRole) {
+      setSelectedRole(savedRole);
+    } else {
+      // Si pas de rôle sélectionné, rediriger vers la sélection
+      navigate('/role-selection');
+    }
+  }, [navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!isLogin && !formData.acceptTerms) {
@@ -27,30 +42,56 @@ const Auth = () => {
       return;
     }
 
-      // 👉 Construire l'objet user
-    const userData = {
-    name: formData.username || "Utilisateur",
-    email: formData.email,
-    phone: formData.phone || null,
-    };
+    if (!isLogin && !formData.username) {
+      toast.error("Veuillez remplir ce champ.");
+      return;
+    }
 
-    // 👉 Sauvegarde dans localStorage
-      localStorage.setItem("user", JSON.stringify(userData));
-
-    toast.success(isLogin ? "Connexion réussie!" : "Compte créé avec succès!");
-    navigate("/home");
+    try {
+      if (isLogin) {
+        // Mode connexion
+        await login(formData.email, formData.password, selectedRole);
+        toast.success("Connexion réussie!");
+      } else {
+        // Mode inscription
+        const userData = {
+          name: formData.username,
+          email: formData.email,
+          phone: formData.phone || null,
+          role: selectedRole,
+        };
+        
+        localStorage.setItem("user", JSON.stringify(userData));
+        toast.success("Compte créé avec succès!");
+        
+        // Redirection selon le rôle
+        if (selectedRole === "proprietaire") {
+          navigate("/proprietaire/home");
+        } else {
+          navigate("/home");
+        }
+      }
+    } catch (error) {
+      toast.error("Erreur lors de la connexion");
+    }
   };
 
   const handleSocialAuth = (provider: string) => {
     toast.info(`Connexion avec ${provider}...`);
-    setTimeout(() => navigate("/home"), 1000);
+    setTimeout(() => {
+      if (selectedRole === "proprietaire") {
+        navigate("/proprietaire/home");
+      } else {
+        navigate("/home");
+      }
+    }, 1000);
   };
 
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-md mx-auto">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/role-selection')}
           className="mb-8 p-2 hover:bg-secondary rounded-lg transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -61,6 +102,38 @@ const Auth = () => {
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Afficher le rôle sélectionné (non modifiable) */}
+          <div className="space-y-2">
+            <Label>Je me connecte en tant que :</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <div
+                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 ${
+                  selectedRole === "student"
+                    ? "border-cyan-500 bg-cyan-50 dark:bg-cyan-950/20"
+                    : "border-border opacity-50"
+                }`}
+              >
+                <User className={`w-6 h-6 ${selectedRole === "student" ? "text-cyan-500" : "text-muted-foreground"}`} />
+                <span className={`font-medium text-sm ${selectedRole === "student" ? "text-cyan-500" : "text-muted-foreground"}`}>
+                  Étudiant
+                </span>
+              </div>
+
+              <div
+                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 ${
+                  selectedRole === "proprietaire"
+                    ? "border-purple-500 bg-purple-50 dark:bg-purple-950/20"
+                    : "border-border opacity-50"
+                }`}
+              >
+                <Home className={`w-6 h-6 ${selectedRole === "proprietaire" ? "text-purple-500" : "text-muted-foreground"}`} />
+                <span className={`font-medium text-sm ${selectedRole === "proprietaire" ? "text-purple-500" : "text-muted-foreground"}`}>
+                  Propriétaire
+                </span>
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -106,6 +179,9 @@ const Auth = () => {
                   required
                   className="h-12"
                 />
+                {!formData.username && !isLogin && (
+                  <p className="text-xs text-destructive">Veuillez remplir ce champ.</p>
+                )}
               </div>
             </>
           )}
@@ -157,7 +233,11 @@ const Auth = () => {
             </div>
           )}
 
-          <Button type="submit" className="w-full h-12 rounded-xl" size="lg">
+          <Button 
+            type="submit" 
+            className="w-full h-12 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-500" 
+            size="lg"
+          >
             {isLogin ? "Se connecter" : "S'inscrire"}
           </Button>
 

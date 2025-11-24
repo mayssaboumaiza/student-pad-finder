@@ -1,57 +1,83 @@
-import Quiz from "./pages/Quiz";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Splash from "./pages/Splash";
-import Onboarding from "./pages/Onboarding";
-import RoleSelection from "./pages/RoleSelection";
-import Auth from "./pages/Auth";
-import Home from "./pages/Home";
-import PropertyDetail from "./pages/PropertyDetail";
-import Notifications from "./pages/Notifications";
-import Messages from "./pages/Messages";
-import Favorites from "./pages/Favorites";
-import Profile from "./pages/Profile";
-import Explore from "./pages/Explore";
-import List from "./pages/List"
-import Chat from "./pages/Chat";
-import Booking from "./pages/Booking";
-import Payment from "./pages/Payment";
+// src/App.tsx
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from '@/pages/AuthContext';
+import { Toaster } from 'sonner';
 
-const queryClient = new QueryClient();
+// Pages communes
+import Auth from './pages/Auth';
+import Onboarding from './pages/Onboarding';
+import Splash from './pages/Splash';
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
+// Pages Étudiant (vos pages existantes)
+import Home from './pages/Home';
+import Explore from './pages/Explore';
+import Favorites from './pages/Favorites';
+import Booking from './pages/Booking';
+import Chat from './pages/Chat';
+import Messages from './pages/Messages';
+import Notifications from './pages/Notifications';
+import Payment from './pages/Payment';
+import Profile from './pages/Profile';
+import PropertyDetail from './pages/PropertyDetail';
+import RoleSelection from './pages/RoleSelection';
+import List from './pages/List';
+
+// Pages Propriétaire
+import HomeProp from './pages/HomeProp';
+import DemandesLocation from './pages/DemandesLocation';
+import StudentRatings from './pages/StudentRatings';
+import StudentProfile from './pages/StudentProfile';
+import AddListing from './pages/AddListing';
+import Maps from './pages/Maps';
+import Visites from './pages/Visites';
+import Transactions from './pages/Transactions';
+import ProprietaireProfile from './pages/ProprietaireProfile';
+import ProprietaireNotifications from './pages/ProprietaireNotifications';
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
         <Routes>
+          {/* Routes publiques */}
           <Route path="/" element={<Splash />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/role-selection" element={<RoleSelection />} />
           <Route path="/auth" element={<Auth />} />
+
+          {/* Routes Étudiant */}
           <Route path="/home" element={<Home />} />
-          <Route path="/list" element={<List />} />
-          <Route path="/property/:id" element={<PropertyDetail />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/messages" element={<Messages />} />
-          <Route path="/favorites" element={<Favorites />} />
-          <Route path="/profile" element={<Profile />} />
           <Route path="/explore" element={<Explore />} />
-          <Route path="/quiz" element={<Quiz />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/chat/:id" element={<Chat />} />
+          <Route path="/favorites" element={<Favorites />} />
           <Route path="/booking" element={<Booking />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/notifications" element={<Notifications />} />
           <Route path="/payment" element={<Payment />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/property/:id" element={<PropertyDetail />} />
+          <Route path="/list" element={<List />} />
+
+          {/* Routes Propriétaire */}
+          <Route path="/proprietaire/home" element={<HomeProp />} />
+          <Route path="/proprietaire/demandes" element={<DemandesLocation />} />
+          <Route path="/proprietaire/evaluations" element={<StudentRatings />} />
+          <Route path="/proprietaire/student/:id" element={<StudentProfile />} />
+          <Route path="/proprietaire/ajouter-logement" element={<AddListing />} />
+          <Route path="/proprietaire/maps" element={<Maps />} />
+          <Route path="/proprietaire/visites" element={<Visites />} />
+          <Route path="/proprietaire/location" element={<DemandesLocation />} />
+          <Route path="/proprietaire/transactions" element={<Transactions />} />
+          <Route path="/proprietaire/profile" element={<ProprietaireProfile />} />
+          <Route path="/proprietaire/notifications" element={<ProprietaireNotifications />} />
           
+          {/* Route 404 */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+        <Toaster position="top-center" richColors />
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
 
 export default App;

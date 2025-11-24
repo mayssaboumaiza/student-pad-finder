@@ -1,112 +1,128 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Home, Building2, ArrowLeft } from "lucide-react";
-import { toast } from "sonner";
+// src/pages/RoleSelection.tsx
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Home, Building2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+type UserRole = 'student' | 'proprietaire';
 
 const RoleSelection = () => {
   const navigate = useNavigate();
-  const [selectedRole, setSelectedRole] = useState<"student" | "owner" | null>(null);
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
 
   const handleContinue = () => {
-    if (!selectedRole) {
-      toast.error("Veuillez sélectionner un rôle");
-      return;
+    if (selectedRole) {
+      // Sauvegarder le rôle sélectionné dans localStorage
+      localStorage.setItem('selectedRole', selectedRole);
+      // Rediriger vers la page d'authentification
+      navigate('/auth');
     }
-    
-    // Store the role selection
-    localStorage.setItem("userRole", selectedRole);
-    toast.success(`Vous continuez en tant que ${selectedRole === "student" ? "étudiant" : "propriétaire"}`);
-    navigate("/auth");
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-6">
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen bg-background p-6 flex flex-col">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="mb-8 p-2 hover:bg-secondary rounded-lg transition-colors w-fit"
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </button>
+
+      {/* Header */}
+      <div className="text-center mb-12">
+        <h1 className="text-3xl font-bold mb-3">
+          <span className="text-cyan-500">Bienvenue sur </span>
+          <span className="text-purple-500">DARI</span>
+        </h1>
+        <p className="text-muted-foreground text-lg">
+          Choisissez votre profil pour continuer
+        </p>
+      </div>
+
+      {/* Role Cards */}
+      <div className="flex-1 space-y-4 max-w-md mx-auto w-full">
+        {/* Étudiant Card */}
         <button
-          onClick={() => navigate(-1)}
-          className="mb-8 p-2 hover:bg-card rounded-lg transition-colors"
+          onClick={() => setSelectedRole('student')}
+          className={`w-full p-6 rounded-2xl border-2 transition-all ${
+            selectedRole === 'student'
+              ? 'border-cyan-500 bg-cyan-50 dark:bg-cyan-950/20'
+              : 'border-border bg-card hover:border-cyan-300'
+          }`}
         >
-          <ArrowLeft className="w-5 h-5" />
+          <div className="flex items-center gap-4">
+            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
+              selectedRole === 'student' 
+                ? 'bg-cyan-500' 
+                : 'bg-secondary'
+            }`}>
+              <Home className={`w-8 h-8 ${
+                selectedRole === 'student' 
+                  ? 'text-white' 
+                  : 'text-muted-foreground'
+              }`} />
+            </div>
+            <div className="text-left flex-1">
+              <h2 className={`text-xl font-bold mb-1 ${
+                selectedRole === 'student' ? 'text-cyan-500' : 'text-foreground'
+              }`}>
+                Étudiant
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Je cherche un logement ou un colocataire
+              </p>
+            </div>
+          </div>
         </button>
 
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold mb-3 bg-gradient-primary bg-clip-text text-transparent">
-            Bienvenue sur DARI
-          </h1>
-          <p className="text-muted-foreground">
-            Choisissez votre profil pour continuer
-          </p>
-        </div>
-
-        <div className="space-y-4 mb-8">
-          <Card
-            className={`p-6 cursor-pointer transition-all duration-300 hover:shadow-xl ${
-              selectedRole === "student"
-                ? "ring-2 ring-primary shadow-lg scale-105 bg-gradient-to-br from-primary/10 to-primary/5"
-                : "hover:scale-102"
-            }`}
-            onClick={() => setSelectedRole("student")}
-          >
-            <div className="flex items-center gap-4">
-              <div className={`p-4 rounded-2xl transition-colors ${
-                selectedRole === "student"
-                  ? "bg-gradient-primary text-white"
-                  : "bg-muted text-foreground"
-              }`}>
-                <Home className="w-8 h-8" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-lg">Étudiant</h3>
-                <p className="text-sm text-muted-foreground">
-                  Je cherche un logement ou un colocataire
-                </p>
-              </div>
-              {selectedRole === "student" && (
-                <div className="w-6 h-6 rounded-full bg-gradient-primary flex items-center justify-center">
-                  <div className="w-2 h-2 bg-white rounded-full" />
-                </div>
-              )}
+        {/* Propriétaire Card */}
+        <button
+          onClick={() => setSelectedRole('proprietaire')}
+          className={`w-full p-6 rounded-2xl border-2 transition-all ${
+            selectedRole === 'proprietaire'
+              ? 'border-purple-500 bg-purple-50 dark:bg-purple-950/20'
+              : 'border-border bg-card hover:border-purple-300'
+          }`}
+        >
+          <div className="flex items-center gap-4">
+            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
+              selectedRole === 'proprietaire' 
+                ? 'bg-purple-500' 
+                : 'bg-secondary'
+            }`}>
+              <Building2 className={`w-8 h-8 ${
+                selectedRole === 'proprietaire' 
+                  ? 'text-white' 
+                  : 'text-muted-foreground'
+              }`} />
             </div>
-          </Card>
-
-          <Card
-            className={`p-6 cursor-pointer transition-all duration-300 hover:shadow-xl ${
-              selectedRole === "owner"
-                ? "ring-2 ring-secondary shadow-lg scale-105 bg-gradient-to-br from-secondary/10 to-secondary/5"
-                : "hover:scale-102"
-            }`}
-            onClick={() => setSelectedRole("owner")}
-          >
-            <div className="flex items-center gap-4">
-              <div className={`p-4 rounded-2xl transition-colors ${
-                selectedRole === "owner"
-                  ? "bg-secondary text-white"
-                  : "bg-muted text-foreground"
+            <div className="text-left flex-1">
+              <h2 className={`text-xl font-bold mb-1 ${
+                selectedRole === 'proprietaire' ? 'text-purple-500' : 'text-foreground'
               }`}>
-                <Building2 className="w-8 h-8" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-lg">Propriétaire</h3>
-                <p className="text-sm text-muted-foreground">
-                  Je propose un logement à louer
-                </p>
-              </div>
-              {selectedRole === "owner" && (
-                <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
-                  <div className="w-2 h-2 bg-white rounded-full" />
-                </div>
-              )}
+                Propriétaire
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Je propose un logement à louer
+              </p>
             </div>
-          </Card>
-        </div>
+          </div>
+        </button>
+      </div>
 
+      {/* Continue Button */}
+      <div className="mt-8">
         <Button
           onClick={handleContinue}
           disabled={!selectedRole}
-          className="w-full h-14 rounded-2xl text-base font-semibold bg-gradient-primary hover:opacity-90 transition-opacity"
-          size="lg"
+          className={`w-full h-14 text-lg rounded-2xl ${
+            selectedRole === 'student'
+              ? 'bg-gradient-to-r from-cyan-500 to-purple-500'
+              : selectedRole === 'proprietaire'
+              ? 'bg-gradient-to-r from-cyan-500 to-purple-500'
+              : ''
+          }`}
         >
           Continuer
         </Button>
