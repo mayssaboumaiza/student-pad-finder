@@ -13,7 +13,7 @@ import Home from './pages/Home';
 import Explore from './pages/Explore';
 import Favorites from './pages/Favorites';
 import Booking from './pages/Booking';
-import Chat from './pages/Chat';
+import Chat from './pages/Chat'; // Chat Étudiant
 import Messages from './pages/Messages';
 import Notifications from './pages/Notifications';
 import Payment from './pages/Payment';
@@ -33,6 +33,9 @@ import Visites from './pages/Visites';
 import Transactions from './pages/Transactions';
 import ProprietaireProfile from './pages/ProprietaireProfile';
 import ProprietaireNotifications from './pages/ProprietaireNotifications';
+// IMPORTATION AJOUTÉE : J'ai renommé Chat.tsx en ChatProp.tsx pour la clarté si besoin, 
+// sinon, si ChatProp est un fichier différent:
+import ChatProp from './pages/ChatProp'; // Assurez-vous que le chemin est correct pour votre fichier ChatProp.tsx
 
 function App() {
   return (
@@ -70,6 +73,9 @@ function App() {
           <Route path="/proprietaire/transactions" element={<Transactions />} />
           <Route path="/proprietaire/profile" element={<ProprietaireProfile />} />
           <Route path="/proprietaire/notifications" element={<ProprietaireNotifications />} />
+          
+          {/* NOUVELLE ROUTE AJOUTÉE : Redirige HomeProp vers le composant Chat du propriétaire */}
+          <Route path="/proprietaire/chat" element={<ChatProp />} />
           
           {/* Route 404 */}
           <Route path="*" element={<Navigate to="/" replace />} />

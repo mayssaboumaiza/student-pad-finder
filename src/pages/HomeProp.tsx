@@ -53,8 +53,9 @@ const HomeProp = () => {
               <Bell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full"></span>
             </button>
+            {/* C'est ici que la navigation vers la page de chat est effectuée : */}
             <button 
-              onClick={() => navigate('/messages')}
+              onClick={() => navigate('/proprietaire/chat')} 
               className="p-2 hover:bg-secondary rounded-full transition-colors"
             >
               <MessageCircle className="w-5 h-5" />

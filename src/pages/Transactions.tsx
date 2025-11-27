@@ -20,6 +20,24 @@ const Transactions = () => {
 
   const transactions: Transaction[] = [
     {
+      id: '4',
+      type: 'expense',
+      name: 'Réparation Climatiseur',
+      category: 'Maintenance',
+      date: '25 Jan',
+      time: '09:00 AM',
+      amount: 150,
+    },
+    {
+      id: '5',
+      type: 'expense',
+      name: 'Facture STEG',
+      category: 'Factures',
+      date: '15 Jan',
+      time: '02:30 PM',
+      amount: 80,
+    },
+    {
       id: '1',
       type: 'income',
       name: 'Loyer Dar El Menzah',
@@ -56,6 +74,14 @@ const Transactions = () => {
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
 
+  const totalExpense = transactions
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const totalBalance = totalIncome - totalExpense;
+
+  const [showTotals, setShowTotals] = useState(false);
+
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
@@ -75,7 +101,10 @@ const Transactions = () => {
           <Button
             variant={selectedFilter === 'all' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setSelectedFilter('all')}
+            onClick={() => {
+              setSelectedFilter('all');
+              setShowTotals(false);
+            }}
             className="rounded-full flex-1"
           >
             Toutes les transactions
@@ -83,7 +112,10 @@ const Transactions = () => {
           <Button
             variant={selectedFilter === 'income' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setSelectedFilter('income')}
+            onClick={() => {
+              setSelectedFilter('income');
+              setShowTotals(true);
+            }}
             className="rounded-full"
           >
             Revenu
@@ -91,9 +123,29 @@ const Transactions = () => {
         </div>
 
         {/* Total Stats */}
-        <div className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-6 text-primary-foreground">
-          <p className="text-sm opacity-90 mb-2">Revenu total</p>
-          <h2 className="text-4xl font-bold mb-4">{totalIncome} DT</h2>
+	        <div className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-6 text-primary-foreground">
+	          {showTotals ? (
+	            <div className="space-y-3">
+	              <div className="flex justify-between items-center">
+	                <p className="text-sm opacity-90">Revenu total</p>
+	                <h3 className="text-2xl font-bold text-green-300">+{totalIncome} DT</h3>
+	              </div>
+	              <div className="flex justify-between items-center">
+	                <p className="text-sm opacity-90">Dépense totale</p>
+	                <h3 className="text-2xl font-bold text-red-300">-{totalExpense} DT</h3>
+	              </div>
+	              <div className="h-px bg-primary-foreground/50 my-2" />
+	              <div className="flex justify-between items-center">
+	                <p className="text-sm opacity-90">Solde net</p>
+	                <h2 className="text-3xl font-bold">{totalBalance} DT</h2>
+	              </div>
+	            </div>
+	          ) : (
+	            <>
+	              <p className="text-sm opacity-90 mb-2">Revenu total</p>
+	              <h2 className="text-4xl font-bold mb-4">{totalIncome} DT</h2>
+	            </>
+	          )}
           <div className="flex gap-3">
             <Button
               variant="secondary"

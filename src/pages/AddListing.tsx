@@ -1,7 +1,7 @@
 // src/pages/proprietaire/AddListing.tsx
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, MapPin, Upload } from 'lucide-react';
+import { ArrowLeft, Plus, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,8 +10,27 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 
 const AddListing = () => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    title: string;
+    type: string;
+    location: string;
+    rent: string;
+    surface: string;
+    bedrooms: number;
+    bathrooms: number;
+    amenities: {
+      wifi: boolean;
+      electricity: boolean;
+      internet: boolean;
+      heating: boolean;
+      airConditioning: boolean;
+      waterHeater: boolean;
+    };
+    description: string;
+    photos: File[]; // Changement de type pour stocker les objets File
+  }>({
     title: '',
     type: '',
     location: '',
@@ -28,7 +47,7 @@ const AddListing = () => {
       waterHeater: false,
     },
     description: '',
-    photos: [] as string[],
+    photos: [] as File[],
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -38,8 +57,37 @@ const AddListing = () => {
   };
 
   const handlePhotoUpload = () => {
-    toast.info('Fonctionnalité de téléchargement de photos à venir');
+    fileInputRef.current?.click();
   };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const newFiles = Array.from(event.target.files);
+      setFormData(prev => ({
+        ...prev,
+        photos: [...prev.photos, ...newFiles],
+      }));
+      toast.success(`${newFiles.length} photo(s) sélectionnée(s).`);
+    }
+  };
+
+  // Charger la localisation depuis localStorage au montage
+  useEffect(() => {
+    const storedLocation = localStorage.getItem('selectedLocation');
+    if (storedLocation) {
+      try {
+        const locationData = JSON.parse(storedLocation);
+        setFormData(prev => ({
+          ...prev,
+          location: locationData.address,
+        }));
+        // Nettoyer après utilisation
+        localStorage.removeItem('selectedLocation');
+      } catch (error) {
+        console.error("Erreur lors de la lecture de la localisation stockée:", error);
+      }
+    }
+  }, []);
 
   const toggleAmenity = (amenity: keyof typeof formData.amenities) => {
     setFormData({
@@ -93,44 +141,23 @@ const AddListing = () => {
           </select>
         </div>
 
-        {/* Localisation avec carte */}
-        <div className="space-y-2">
-          <Label>Localisation</Label>
-          <div className="h-56 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl relative overflow-hidden">
-            {/* Carte stylisée avec pin */}
-            <div className="absolute inset-0 opacity-20">
-              <svg className="w-full h-full" viewBox="0 0 400 300">
-                {/* Routes stylisées */}
-                <line x1="0" y1="100" x2="400" y2="100" stroke="white" strokeWidth="2" />
-                <line x1="200" y1="0" x2="200" y2="300" stroke="white" strokeWidth="2" />
-                <line x1="0" y1="200" x2="400" y2="200" stroke="white" strokeWidth="1.5" />
-                <line x1="100" y1="0" x2="100" y2="300" stroke="white" strokeWidth="1.5" />
-                <line x1="300" y1="0" x2="300" y2="300" stroke="white" strokeWidth="1.5" />
-              </svg>
-            </div>
-            
-            {/* Pin de localisation central */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <MapPin className="w-16 h-16 text-white drop-shadow-lg mb-2 mx-auto" fill="white" />
-                <p className="text-white font-medium drop-shadow-md">Carte interactive</p>
-              </div>
-            </div>
-
-            {/* Points décoratifs */}
-            <div className="absolute top-4 left-4 w-2 h-2 bg-white rounded-full opacity-60"></div>
-            <div className="absolute top-8 right-12 w-2 h-2 bg-white rounded-full opacity-60"></div>
-            <div className="absolute bottom-12 left-16 w-2 h-2 bg-white rounded-full opacity-60"></div>
-            <div className="absolute bottom-6 right-8 w-2 h-2 bg-white rounded-full opacity-60"></div>
-          </div>
-          <Button
-            type="button"
-            className="w-full h-12 bg-pink-400 hover:bg-pink-500 text-white rounded-xl"
-            onClick={() => navigate('/proprietaire/maps')}
-          >
-            Marquer sur la carte
-          </Button>
-        </div>
+	        {/* Localisation */}
+	        <div className="space-y-2">
+	          <Label>Localisation</Label>
+	          <div className="flex items-center justify-between p-4 border rounded-lg bg-secondary">
+	            <p className="text-sm text-muted-foreground">
+	              {formData.location || "Aucun emplacement sélectionné"}
+	            </p>
+	            <Button
+	              type="button"
+	              variant="outline"
+	              size="sm"
+	              onClick={() => navigate('/proprietaire/maps')}
+	            >
+	              Marquer sur la carte
+	            </Button>
+	          </div>
+	        </div>
 
         {/* Loyer */}
         <div className="grid grid-cols-2 gap-4">
@@ -230,15 +257,49 @@ const AddListing = () => {
         {/* Photos */}
         <div className="space-y-3">
           <Label>Photos du logement</Label>
-          <div
-            onClick={handlePhotoUpload}
-            className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-secondary/50 transition-colors"
-          >
-            <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">
-              Ajouter des images depuis votre galerie
-            </p>
-          </div>
+	          <input
+	            type="file"
+	            ref={fileInputRef}
+	            multiple
+	            accept="image/*"
+	            onChange={handleFileChange}
+	            className="hidden"
+	          />
+	          <div
+	            onClick={handlePhotoUpload}
+	            className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-secondary/50 transition-colors"
+	          >
+	            <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+	            <p className="text-sm text-muted-foreground">
+	              Ajouter des images depuis votre galerie
+	            </p>
+	          </div>
+	          {formData.photos.length > 0 && (
+	            <div className="grid grid-cols-3 gap-3 mt-4">
+	              {formData.photos.map((file, index) => (
+	                <div key={index} className="relative aspect-square rounded-lg overflow-hidden border">
+	                  <img
+	                    src={URL.createObjectURL(file)}
+	                    alt={`Photo ${index + 1}`}
+	                    className="w-full h-full object-cover"
+	                  />
+	                  <button
+	                    type="button"
+	                    onClick={(e) => {
+	                      e.stopPropagation();
+	                      setFormData(prev => ({
+	                        ...prev,
+	                        photos: prev.photos.filter((_, i) => i !== index),
+	                      }));
+	                    }}
+	                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+	                  >
+	                    &times;
+	                  </button>
+	                </div>
+	              ))}
+	            </div>
+	          )}
         </div>
 
         {/* Description */}
